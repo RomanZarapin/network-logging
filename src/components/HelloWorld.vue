@@ -133,6 +133,11 @@ import { Options, Vue } from "vue-class-component";
   props: {
     msg: String,
   },
+  data() {
+    return {
+      test: true,
+    };
+  },
 })
 export default class HelloWorld extends Vue {
   msg!: string;
