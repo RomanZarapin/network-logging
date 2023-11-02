@@ -1,20 +1,18 @@
 <template>
-  <div id="app">
-    <img src="./assets/logo.png" />
+  <div id="app" style="display: flex; width: 100%;">
     <div>
-      <p>
-        If Element is successfully added to this project, you'll see an
-        <code v-text="'<el-button>'"></code>
-        below
-      </p>
-      <el-button>el-button</el-button>
+      <MenuComponent/>
     </div>
-    <DeviceListView/>
+    <div style="width: 100%;">
+      <RouterView/>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import DeviceListView from "@/views/Devices/DeviceListView.vue";
+import {useRoute} from "vue-router";
+import MenuComponent from "./components/BaseComponents/MenuComponent.vue";
+
 </script>
 
 <style>
