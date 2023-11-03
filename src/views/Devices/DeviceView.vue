@@ -1,70 +1,74 @@
 <template>
-   <div>
-    <el-table :data="deviceData"
-      height="840"
-      row-key="id"
-      border
-      default-expand-all>
-      <el-table-column prop="session" label="Сессия" sortable/>
-      <el-table-column prop="number" label="Номер" sortable/>
-      <el-table-column prop="method" label="Метод"/>
-      <el-table-column prop="path" label="Путь"/>
-      <el-table-column :formatter="(val)=>{
-        return `${val.status};${val.status_code}`
-      }" label="Статус">
-       <template #default="scope">
-        <el-tag
-          :type="scope.row.status === 'done' ? 'success' : (scope.row.status === 'pending') ? 'warning' : 'error'"
-          disable-transitions
-          >{{ scope.row.status }};{{scope.row.status_code}}</el-tag
-        >
-      </template></el-table-column>
-      <el-table-column prop="created_at" label="Дата"/>
-      <el-table-column prop="project.name" label="Проект"/>
-    </el-table>
- </div>
+  <el-button
+   type="primary"
+   v-if="requestVision"
+   @click='hideRequestData'
+   :icon="ArrowLeft"
+   style="margin-bottom: 20px;"
+  >Свернуть запрос</el-button>
+  <el-button
+   type="primary"
+   v-else
+   @click='expandRequestData'
+   :icon="ArrowRight"
+   v-show="Boolean(requestChoosen)"
+   style="margin-bottom: 20px;"
+  >Развернуть запрос</el-button>
+  <div style="display: flex;">
+    <div :style="{width: deviceTableWidth}">
+      <DeviceTable
+       @open-request-component="openRequestComponent"
+      />
+    </div>
+    <div v-if="requestVision" style="width: 45%; margin-left: 20px; max-width: 45%;">
+      <DeviceCard :requestData="requestData"/>
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
-import { getDeviceData } from "@/api/devices/DeviceApi";
-import { ref, onMounted } from "vue";
-import {useRoute} from "vue-router";
+import DeviceTable from '@/components/Devices/DeviceTable'; 
+import DeviceCard from '@/components/Devices/DeviceCard';
+import { ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import {
+  ArrowLeft,
+  ArrowRight,
+} from '@element-plus/icons-vue'
 
-const deviceData = ref<any>([])
-const id = Number(useRoute().params['id'])
+const route = useRoute()
+const router = useRouter()
+const device_id = Number(useRoute().params['id'])
+const requestVision = ref<Boolean>(Boolean(route.query.request_id))
+const requestChoosen = ref<Boolean>(requestVision.value)
+const deviceTableWidth = ref<string>((Boolean(route.query.request_id)) ? '55%': '100%')
+const requestData = ref<Object | null | undefined>({test: '123'})
 
-onMounted(()=>{
-     getData();
-})
-
-
-function handleTableData(response: [])
+function hideRequestData()
 {
-  let groupData = {};
-  let tableData = [];
-  response.forEach(request => {
-    if(groupData[request.session] == undefined)
-    {
-      groupData[request.session] = request;
-      groupData[request.session]['children'] = [];
-    }
-    else{
-      groupData[request.session]['children'].push(request)
-    }
-  });
-  for (const [session, data] of Object.entries(groupData))
-  {
-    tableData.unshift(data);
+  requestVision.value = false
+  deviceTableWidth.value = '100%'
+}
+
+function expandRequestData()
+{
+  requestVision.value = true
+  deviceTableWidth.value = '55%'
+}
+
+watch(
+  () => route.query.request_id,
+  async newRequestID => {
+    requestVision.value = Boolean(route.query.request_id)
+    deviceTableWidth.value = '55%'
+    requestChoosen.value = true
   }
-  return tableData;
-}
+)
 
-
-async function getData()
-{
-  let response = await getDeviceData(id);
-  console.log(response.data.requests)
-  deviceData.value = handleTableData(response.data.requests);
-}
+function openRequestComponent(request_data: object)
+ {   
+    requestData.value = request_data
+    router.push({name: "device", params: {id: device_id}, query: {request_id: request_data.id}})
+ }
 
 </script>

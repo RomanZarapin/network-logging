@@ -73,7 +73,6 @@ async function getTableData() {
 
 function openDeviceView(device: object){
   router.push({name: "device", params: {id: device.id}})
-
 }
 
 const handleSizeChange = (val: number) => {
