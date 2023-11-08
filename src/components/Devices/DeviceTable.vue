@@ -6,6 +6,7 @@
        :width="tableWidth"
        border
        default-expand-all
+       highlight-current-row
        @row-click="openRequestComponent">
        <el-table-column prop="session" label="Сессия" sortable/>
        <el-table-column prop="number" label="Номер" sortable/>
@@ -21,7 +22,11 @@
            >{{ scope.row.status }};{{scope.row.status_code}}</el-tag
          >
        </template></el-table-column>
-       <el-table-column prop="created_at" label="Дата"/>
+       <el-table-column prop="created_at" label="Дата" :formatter="(val)=>{
+          let created_at = new Date(val.created_at)
+          
+          return created_at.toLocaleString()
+        }"/>
        <el-table-column prop="project.name" label="Проект"/>
      </el-table>
   </div>
@@ -30,12 +35,14 @@
  <script lang="ts" setup>
  import { getDeviceData } from "@/api/devices/DeviceApi";
  import { defineEmits, ref, onMounted } from "vue";
- import {useRoute} from "vue-router";
+ import {useRoute, useRouter} from "vue-router";
  
+ const route = useRoute()
  const deviceData = ref<any>([])
  const tableWidth = ref<number>(50)
- const device_id = Number(useRoute().params['id'])
+ const device_id = Number(route.params['id'])
  const emit = defineEmits(['open-request-component'])
+ const router = useRouter()
 
 
  onMounted(()=>{
@@ -67,14 +74,19 @@
  
  async function getData()
  {
-   let response = await getDeviceData(device_id);
-   deviceData.value = handleTableData(response.data.requests);
+    let response = await getDeviceData(device_id);
+    let request_id = route.query.request_id;
+    deviceData.value = handleTableData(response.data.requests);
+    if (request_id){
+      let request_data = response.data.requests.find((request: any) => request.id = request_id)
+      emit('open-request-component', request_data)
+    }
  }
 
  function openRequestComponent(request_data: any)
  {
+    router.push({name: "device", params: {id: device_id}, query: {request_id: request_data.id}})
     emit('open-request-component', request_data)
  }
-
  
  </script>

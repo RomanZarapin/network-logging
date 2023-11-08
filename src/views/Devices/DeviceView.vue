@@ -1,19 +1,4 @@
 <template>
-  <el-button
-   type="primary"
-   v-if="requestVision"
-   @click='hideRequestData'
-   :icon="ArrowLeft"
-   style="margin-bottom: 20px;"
-  >Свернуть запрос</el-button>
-  <el-button
-   type="primary"
-   v-else
-   @click='expandRequestData'
-   :icon="ArrowRight"
-   v-show="Boolean(requestChoosen)"
-   style="margin-bottom: 20px;"
-  >Развернуть запрос</el-button>
   <div style="display: flex;">
     <div :style="{width: deviceTableWidth}">
       <DeviceTable
@@ -21,7 +6,9 @@
       />
     </div>
     <div v-if="requestVision" style="width: 45%; margin-left: 20px; max-width: 45%;">
-      <DeviceCard :requestData="requestData"/>
+      <DeviceCard :requestData="requestData"
+      @close-request-component="hideRequestData"
+      />
     </div>
   </div>
 </template>
@@ -36,12 +23,9 @@ import {
   ArrowRight,
 } from '@element-plus/icons-vue'
 
-const route = useRoute()
-const router = useRouter()
-const device_id = Number(useRoute().params['id'])
-const requestVision = ref<Boolean>(Boolean(route.query.request_id))
+const requestVision = ref<Boolean>(false)
 const requestChoosen = ref<Boolean>(requestVision.value)
-const deviceTableWidth = ref<string>((Boolean(route.query.request_id)) ? '55%': '100%')
+const deviceTableWidth = ref<string>('100%')
 const requestData = ref<Object | null | undefined>({test: '123'})
 
 function hideRequestData()
@@ -56,19 +40,11 @@ function expandRequestData()
   deviceTableWidth.value = '55%'
 }
 
-watch(
-  () => route.query.request_id,
-  async newRequestID => {
-    requestVision.value = Boolean(route.query.request_id)
+function openRequestComponent(request_data: object)
+ {  
+    requestData.value = request_data
+    requestVision.value = true
     deviceTableWidth.value = '55%'
     requestChoosen.value = true
-  }
-)
-
-function openRequestComponent(request_data: object)
- {   
-    requestData.value = request_data
-    router.push({name: "device", params: {id: device_id}, query: {request_id: request_data.id}})
  }
-
 </script>
