@@ -14,13 +14,13 @@
       <el-collapse-item title="Заголовки ответа" name="0">
         <div>
           <vue-json-pretty :data="responseHeaders" :virtual="true" :showIcon="true" :showLineNumber="true"
-          :onNodeClick="copyResHNodeData" :collapsedOnClickBrackets="false"/>
+          :onNodeClick="copyResHNodeData" :collapsedOnClickBrackets="false" :height="height1"/>
         </div>
       </el-collapse-item>
       <el-collapse-item title="Ответ" name="1">
         <div>
           <vue-json-pretty :data="responseData" :virtual="true" :showIcon="true" :showLineNumber="true"
-          :onNodeClick="copyResBNodeData" :collapsedOnClickBrackets="false"/>
+          :onNodeClick="copyResBNodeData" :collapsedOnClickBrackets="false" :height="height2"/>
         </div>
       </el-collapse-item>
       <el-collapse-item title="Заголовки запроса" name="2">
@@ -45,20 +45,23 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from 'vue';
-import { LocationQueryValue, useRoute } from 'vue-router';
+import { computed, ref, watch } from 'vue';
+import { LocationQueryValue } from 'vue-router';
 import VueJsonPretty from 'vue-json-pretty';
 import 'vue-json-pretty/lib/styles.css';
 
 const requestID = ref<LocationQueryValue | LocationQueryValue[]>()
-const requestData = ref<Object>({})
+const requestData = ref<any>({})
 
-const responseData = ref<Object> ({})
-const responseHeaders = ref<Object> ({})
-const requestHeaders = ref<Object> ({})
+const responseData = ref<any> ({})
+const responseHeaders = ref<any> ({})
+const requestHeaders = ref<any> ({})
 const CURL = ref<String> ("")
 const method = ref<String> ("")
 const url = ref<String> ("")
+
+const height1 = computed(() => Math.min(JSON.stringify(responseHeaders.value, null, 2).split('\n').length * 20 + 20, 500))
+const height2 = computed(() => Math.min(JSON.stringify(responseData.value, null, 2).split('\n').length * 20 + 20, 500))
 
 const props = defineProps(['requestData'])
 const emit = defineEmits(['close-request-component'])

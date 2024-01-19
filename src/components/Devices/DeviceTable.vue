@@ -8,11 +8,11 @@
        default-expand-all
        highlight-current-row
        @row-click="openRequestComponent">
-       <el-table-column prop="session" label="Сессия" sortable/>
-       <el-table-column prop="number" label="Номер" sortable/>
-       <el-table-column prop="method" label="Метод"/>
+       <el-table-column prop="session" label="Сессия" :width="110" sortable/>
+       <el-table-column prop="number" label="Номер" :width="110" sortable/>
+       <el-table-column prop="method" label="Метод" :width="90"/>
        <el-table-column prop="path" label="Путь"/>
-       <el-table-column :formatter="(val)=>{
+       <el-table-column :width="110" :formatter="(val)=>{
          return `${val.status};${val.status_code}`
        }" label="Статус">
         <template #default="scope">
@@ -22,12 +22,12 @@
            >{{ scope.row.status }};{{scope.row.status_code}}</el-tag
          >
        </template></el-table-column>
-       <el-table-column prop="created_at" label="Дата" :formatter="(val)=>{
+       <el-table-column prop="created_at" label="Дата" :width="160" :formatter="(val)=>{
           let created_at = new Date(val.created_at)
           
           return created_at.toLocaleString()
         }"/>
-       <el-table-column prop="project.name" label="Проект"/>
+       <el-table-column prop="project.name" label="Проект" :width="140"/>
      </el-table>
   </div>
  </template>
